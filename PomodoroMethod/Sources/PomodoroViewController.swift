@@ -14,7 +14,6 @@ class PomodoroViewController: UIViewController {
     private var isStarted: Bool = false
     private var timer: Timer?
     private var remainingTime: TimeInterval = PomodoroConstants.workTime
-    private var elapsedTime: TimeInterval = PomodoroConstants.initialRunCount
 
     private let playImage = UIImage(named: "play")?.withRenderingMode(.alwaysTemplate)
     private let pauseImage = UIImage(named: "pause")?.withRenderingMode(.alwaysTemplate)
@@ -116,10 +115,10 @@ class PomodoroViewController: UIViewController {
     // MARK: - Func
 
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            self.elapsedTime += 1
-            self.checkTimer()
-            self.updateColor()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) { [weak self] _ in
+            self?.remainingTime -= 0.001
+            self?.checkTimer()
+            self?.updateColor()
         }
     }
 
@@ -128,12 +127,9 @@ class PomodoroViewController: UIViewController {
     }
 
     private func checkTimer() {
-        if elapsedTime > (isWorkTime ? PomodoroConstants.workTime : PomodoroConstants.breakTime) {
+        if remainingTime <= 0 {
             isWorkTime.toggle()
             remainingTime = isWorkTime ? PomodoroConstants.workTime : PomodoroConstants.breakTime
-            elapsedTime = PomodoroConstants.initialRunCount
-        } else {
-            remainingTime = (isWorkTime ? PomodoroConstants.workTime : PomodoroConstants.breakTime) - elapsedTime
         }
 
         animatedCountingLabel.text = formatTime(remainingTime)
